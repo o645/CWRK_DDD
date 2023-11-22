@@ -1,0 +1,15 @@
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\bin\Debug\net7.0\CWRK_DDD.exe
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\bin\Debug\net7.0\CWRK_DDD.deps.json
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\bin\Debug\net7.0\CWRK_DDD.runtimeconfig.json
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\bin\Debug\net7.0\CWRK_DDD.dll
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\bin\Debug\net7.0\CWRK_DDD.pdb
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.csproj.AssemblyReference.cache
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.AssemblyInfoInputs.cache
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.AssemblyInfo.cs
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.csproj.CoreCompileInputs.cache
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.dll
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\refint\CWRK_DDD.dll
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.pdb
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\CWRK_DDD.genruntimeconfig.cache
+C:\Users\spect\RiderProjects\CWRK_DDD\CWRK_DDD\obj\Debug\net7.0\ref\CWRK_DDD.dll
