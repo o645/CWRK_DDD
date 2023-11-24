@@ -1,171 +1,173 @@
 ﻿using System;
+using CWRK_DDD.Database;
+using static CWRK_DDD.Database.DatabaseHandler.Database;
+using static CWRK_DDD.Database.DatabaseHandler.UserDatabaseFields;
+using static CWRK_DDD.Database.DatabaseHandler.MeetingDatabaseFields;
+using static CWRK_DDD.Database.DatabaseHandler.ReportDatabaseFields;
+using static CWRK_DDD.Database.DatabaseHandler.AssignmentDatabaseFields;
 
 namespace CWRK_DDD
 {
     internal class Program
     {
-        private const string UserDatabaseFile = "/loginDB.csv";
-        private const string MeetingsDatabase = "/meetingDB.csv";
-        private static List<User> UserDBLoaded = new List<User>();
-        private static void CreateUserDB()
-        {
-            StreamReader reader = new(UserDatabaseFile);
-            do
-            {
-                string user = reader.ReadLine();
-                if (user != null)
-                {
-                    User newUser = new User(user);
-                }
-            }
-        }
+        private const string DatabaseLocation =
+            "D:\\Uni Materials\\Coursework Final\\DDD\\Git\\CWRK_DDD\\Database\\UserDatabase.db";
+        private const string ConnectionString = $"Data Source={DatabaseLocation}";
+        public static UserAccounts.User CurrentUser;
+        public static DatabaseHandler MyDatabase;
+        
+        
 
         static void Main(string[] args)
         {
+            MyDatabase = new DatabaseHandler(ConnectionString);
+            
+            
             //Login Loop
-            User CurrentUser = null;
-            while (CurrentUser == null)
-            {
-                CurrentUser = Login();
-            }
+            LoginViaConsole();
+            
             //Menu Loop
+            Menu();
+            
+            //Close down program.
+            MyDatabase.Deconstruct();
         }
 
         /// <summary>
         /// Does login procedures
         /// </summary>
-        /// <returns>Logged in user, or Null if no user found.</returns>
-        private static User Login() //TODO: setup really basic encryption?
+        private static void LoginViaConsole()
         {
-            StreamReader loginDatabase = new StreamReader(UserDatabaseFile); //USERID,PASSWORD,NAME,ACCOUNTTYPE,ASSIGNEDUSER,COURSE
-            Console.WriteLine("Please enter your ID");
-            string ID = Console.ReadLine();
-            Console.WriteLine("Please enter your Password.");
-            string pass = Console.ReadLine();
-            string[] userinfo;
-            string userfile;
-            do
+
+            while (true)
             {
-                userfile = loginDatabase.ReadLine();
-                userinfo = userfile.Split(",");
-            } while (userinfo[0] == ID);
-            loginDatabase.Close();
-            if (userinfo[1] == pass)
-            {
-                return CreateUser(userinfo);
+                Console.WriteLine("Enter your Username");
+                string username = Console.ReadLine();
+                Console.WriteLine("Enter your Password");
+                string password = Console.ReadLine();
+                var status = Login(username, password);
+                if (status == LoginStatus.LoggedIn)
+                {
+                    break;
+                }
+                else
+                {
+                    switch (status)
+                    {
+                        case(LoginStatus.WrongPassword):
+                            Console.WriteLine("Wrong password inputted, please try again.");
+                            break;
+                        case(LoginStatus.NoUserFound):
+                            Console.WriteLine("No user found with that username. Please try again.");
+                            break;
+                    }
+                }
             }
-            else
+
+            
+        }
+
+        /// <summary>
+        /// Status of Login Attempt
+        /// </summary>
+        private enum LoginStatus
+        {
+            NoUserFound,
+            WrongPassword,
+            LoggedIn
+        }
+
+        private static LoginStatus Login(string userid, string userPassword)
+        {
+            if (MyDatabase.QueryForExistance(Users,UserID.ToString(),userid) != null)
             {
-                Console.WriteLine("Incorrect User ID or Password. Please login again.");
-                return null;
+                UserAccounts.User foundUser = new UserAccounts.User(userid,MyDatabase);
+                if (foundUser.CheckPassword(userPassword))
+                {
+                    CurrentUser = foundUser;
+                    return LoginStatus.LoggedIn;
+                }
+                else
+                {
+                    return LoginStatus.WrongPassword;
+                }
+            }
+
+            return LoginStatus.NoUserFound;
+        }
+        
+
+        private static List<Meeting> GetMeetings(UserAccounts.User user)
+        {
+            //TODO get meetings for a user.
+            return null;
+        }
+
+        private static void Menu()
+        {
+            bool Loop = true;
+            int Option = 0;
+            while (Loop)
+            {
+                //TODO: setup menu based on account type
+                Console.WriteLine($"---- Logged in as {CurrentUser.Name} ----");
+                //todo: 1. Create Meeting
+                //todo: 2. View My Meetings
+                //todo: 3. Create Report
+                //todo: 4. View My Past Reports
+                //todo. 5. Logoff
+
+                Loop = MenuSelections(Loop);
             }
         }
         
-        /// <summary>
-        /// Creates a User of the appropriate type.
-        /// </summary>
-        /// <param name="userinfo">User's info from database</param>
-        /// <returns>User instance.</returns>
-        private static User CreateUser(string[] userinfo)
+        
+        private static bool MenuSelections(bool Loop)
         {
-            User User;
-            AccountType.TryParse(userinfo[3].ToUpper(), out AccountType accountType);
-            switch (accountType)
+            int Option = HelperMethods.RepeatUntilNumber();
+            switch (Option)
             {
-                case (AccountType.STUDENT):
-                    User = new Student(userinfo);
+                case (1):
+                    CreateMeeting();
                     break;
-                case (AccountType.SENIOR_TUTOR):
-                    User = new SeniorTutor(userinfo);
+                case (2):
+                    ViewMyMeetings();
                     break;
-                case (AccountType.PERSONAL_SUPERVISOR):
-                    User = new PersonalSupervisor(userinfo);
+                case (3):
+                    CreateReport();
                     break;
-                default:
-                    return null; //should never happen, but just incase.
-
+                case (4):
+                    ViewMyReports();
+                    break;
+                case (5):
+                    Loop = false;
+                    break;
             }
 
-            return User;
+            return Loop;
         }
 
-        private static List<Meeting> GetMeetings(User user)
-        {
-            
-        }
-        private static void Menu(User user)
+        private static void ViewMyMeetings()
         {
             
         }
 
-        public static void CreateMeeting(User currentUser)
+        private static void ViewMyReports()
+        {
+            //TODO: if user account is student, show all reports sent by student.
+            //TODO: otherwise show all reports sent by assigned students, or all reports if ST.
+        }
+
+        public static void CreateMeeting()
         {
             //TODO: ask for date and time. then set user.
         }
-    }
 
-    class Meeting
-    {
-        public string MeetingID;
-        public User sender;
-        public User recipent;
-        public DateTime MeetingTime;
-    }
-
-    class User
-    {
-        protected string ID;
-        public string Name;
-        public List<Meeting> currentMeetings;
-        public AccountType _accountType;
-    }
-
-    internal enum AccountType
-    {
-        STUDENT,
-        PERSONAL_SUPERVISOR,
-        SENIOR_TUTOR
-    }
-
-    class Student : User
-    {
-        
-
-        public string assignedSupervisor;
-
-        public Student(String[] userfile)
+        public static void CreateReport()
         {
-            ID = userfile[0];
-            Name = userfile[2];
-            _accountType = AccountType.Parse<AccountType>(userfile[3].ToUpper());
-            assignedSupervisor = userfile[4];
-        }
-
-    }
-
-    class PersonalSupervisor : User
-    {
-        public List<string> assignedStudents;
-        public PersonalSupervisor(String[] userfile)
-        {
-            ID = userfile[0];
-            Name = userfile[2];
-            _accountType = AccountType.Parse<AccountType>(userfile[3].ToUpper());
-            assignedStudents = userfile[4].Split("|").ToList();
-        }
-        
-        //TODO: allow updating assigned students list.
-    }
-
-    class SeniorTutor : User
-    {
-        public SeniorTutor(String[] userfile)
-        {
-            ID = userfile[0];
-            Name = userfile[2];
-            _accountType = AccountType.Parse<AccountType>(userfile[3].ToUpper());
+            //TODO: ask for info, then create a report and add to database.
+            //TODO: CREATE REPORT DATABASE STUFF.
         }
     }
-    
-    
 }
+    
