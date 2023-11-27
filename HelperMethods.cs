@@ -50,8 +50,8 @@ public static class HelperMethods
             if (dateTime.CompareTo(DateTime.Today) < 0 && !includePast) continue;
             string sender = database.QuerySingleMeetingField(meetingId, Sender);
             string recipent = database.QuerySingleMeetingField(meetingId, Recipent);
-
-            Meeting meeting = new(meetingId, sender, recipent,dateTime);
+            string meetingName = database.QuerySingleMeetingField(meetingId, MeetingName);
+            Meeting meeting = new(meetingId, sender, recipent,meetingName,dateTime);
             MyMeetings.Add(meeting);
         }
         MyMeetings.Sort();
@@ -79,7 +79,8 @@ public static class HelperMethods
             if(dateTime.CompareTo(DateTime.Today) < 0 && !includePast) continue;
             string sender = database.QuerySingleMeetingField(meetingId, Sender);
             string recipent = database.QuerySingleMeetingField(meetingId, Recipent);
-            Meeting meeting = new(meetingId, sender, recipent,dateTime);
+            string meetingName = database.QuerySingleMeetingField(meetingId, MeetingName);
+            Meeting meeting = new(meetingId, sender, recipent,meetingName,dateTime);
             MyMeetings.Add(meeting);
         }
         MyMeetings.Sort();

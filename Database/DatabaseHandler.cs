@@ -41,7 +41,7 @@ public class DatabaseHandler
         Reports,
         AssignedUsers
     }
-    
+
     /// <summary>
     /// Status of a Query that doesn't return.
     /// </summary>
@@ -50,7 +50,7 @@ public class DatabaseHandler
         Failed,
         Success
     }
-    
+
 
     /// <summary>
     /// Fields in the User table
@@ -71,6 +71,7 @@ public class DatabaseHandler
         MeetingID,
         Sender,
         Recipent,
+        MeetingName,
         Date
     }
 
@@ -103,12 +104,14 @@ public class DatabaseHandler
     /// <param name="Field">Field to return value from</param>
     /// <returns>Value of field.</returns>
     public string QuerySingleUserField(string PrimaryKey, UserDatabaseFields Field) =>
-        QuerySingleField(Database.Users,UserDatabaseFields.UserID.ToString(), PrimaryKey, Field.ToString());
+        QuerySingleField(Database.Users, UserDatabaseFields.UserID.ToString(), PrimaryKey, Field.ToString());
+
     public string QuerySingleMeetingField(string PrimaryKey, MeetingDatabaseFields Field) =>
-        QuerySingleField(Database.Meetings,MeetingDatabaseFields.MeetingID.ToString(), PrimaryKey, Field.ToString());
+        QuerySingleField(Database.Meetings, MeetingDatabaseFields.MeetingID.ToString(), PrimaryKey, Field.ToString());
+
     public string QuerySingleReportField(string PrimaryKey, ReportDatabaseFields Field) =>
-        QuerySingleField(Database.Reports,ReportDatabaseFields.ReportID.ToString(), PrimaryKey, Field.ToString());
-    
+        QuerySingleField(Database.Reports, ReportDatabaseFields.ReportID.ToString(), PrimaryKey, Field.ToString());
+
     /// <summary>
     /// Sends a SELECT Query to a database.
     /// </summary>
@@ -119,9 +122,9 @@ public class DatabaseHandler
     /// <returns>Value of field for that primary key.</returns>
     public string QuerySingleField(Database databaseWanted, string PrimaryKeyField, string PrimaryKey, string Field)
     {
-        var command = _connection.CreateCommand(); 
+        var command = _connection.CreateCommand();
         command.CommandText =
-                    $@"SELECT {Field} FROM {databaseWanted.ToString()} WHERE {PrimaryKeyField} = '{PrimaryKey}'";
+            $@"SELECT {Field} FROM {databaseWanted.ToString()} WHERE {PrimaryKeyField} = '{PrimaryKey}'";
         var reader = command.ExecuteReader();
         if (reader.Read())
         {
@@ -156,8 +159,8 @@ public class DatabaseHandler
 
         return results;
     }
-    
-    public bool QueryForExistance(Database databaseWanted,string primaryKeyField, string primaryKey)
+
+    public bool QueryForExistance(Database databaseWanted, string primaryKeyField, string primaryKey)
     {
         var command = _connection.CreateCommand();
         command.CommandText =
@@ -171,13 +174,24 @@ public class DatabaseHandler
         return false;
     }
 
+    /// <summary>
+    /// Returns a count of records that have that primary key.
+    /// </summary>
+    /// <param name="database">Database to perform action on.</param>
+    /// <param name="primaryKeyField">Field name of primary key</param>
+    /// <param name="primaryKey">Primary key value.</param>
+    /// <returns></returns>
     public int QueryCount(Database database, string primaryKeyField, string primaryKey)
     {
         //TODO: Return Count
         return 0;
-        
     }
 
+    /// <summary>
+    /// Add a new user to the database from a User account
+    /// </summary>
+    /// <param name="user">User account object</param>
+    /// <returns>Status of the query</returns>
     public QueryStatus AddNewUser(UserAccounts.User user)
     {
         return AddNewUser(user.ID, user.Name, user._hashedPassword, user.AccountType);
@@ -201,7 +215,7 @@ public class DatabaseHandler
     public QueryStatus AddNewUser(string userid, string name, string password, UserAccounts.AccountType accountType)
     {
         var command = _connection.CreateCommand();
-        
+
         command.CommandText = $@"INSERT INTO Users VALUES ('{userid}','{name}','{password}','{(int)accountType}')";
         try
         {
@@ -214,11 +228,13 @@ public class DatabaseHandler
             return QueryStatus.Failed;
         }
     }
-    
-    public QueryStatus EditDatabase(Database database, string PrimaryKeyField,string PrimaryKey, string Field, string NewValue)
+
+    public QueryStatus EditDatabase(Database database, string PrimaryKeyField, string PrimaryKey, string Field,
+        string NewValue)
     {
         var command = _connection.CreateCommand();
-        command.CommandText = $@"UPDATE {database.ToString()} SET {Field} = '{NewValue}' WHERE {PrimaryKeyField} = '{PrimaryKey}'";
+        command.CommandText =
+            $@"UPDATE {database.ToString()} SET {Field} = '{NewValue}' WHERE {PrimaryKeyField} = '{PrimaryKey}'";
         try
         {
             command.ExecuteNonQuery();
