@@ -149,7 +149,9 @@ namespace CWRK_DDD
 
         private static void ViewMyMeetings()
         {
-            
+            //TODO: show all of user's meetings, in chronological order from the current day.
+            //TODO: allow user to look at past meetings
+            //TODO: allow filtering sender or recipent meetings.
         }
 
         private static void ViewMyReports()

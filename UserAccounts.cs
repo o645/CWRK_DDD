@@ -1,13 +1,15 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using CWRK_DDD.Database;
+using static CWRK_DDD.Database.DatabaseHandler.AssignmentDatabaseFields;
+using static CWRK_DDD.Database.DatabaseHandler.Database;
 using static CWRK_DDD.Database.DatabaseHandler.UserDatabaseFields;
 
 namespace CWRK_DDD;
 
 public class UserAccounts
 {
-    public class User //USERID,PASSWORD,NAME,ACCOUNTTYPE,ASSIGNEDUSER,COURSE
+    public class User : IComparable<User>
     {
         /// <summary>
         /// User's ID. Should never be changed once set.
@@ -55,7 +57,7 @@ public class UserAccounts
 
 
         /// <summary>
-        /// Create a new user
+        /// Create a new user.
         /// </summary>
         /// <param name="id">User's ID</param>
         /// <param name="name">User's Name</param>
@@ -68,7 +70,7 @@ public class UserAccounts
         }
 
         /// <summary>
-        /// finds a user from the database and creates an User object for them
+        /// Finds a user from the database and creates an User object for them.
         /// </summary>
         /// <param name="ID">User's ID</param>
         public User(string userID, DatabaseHandler databaseHandler)
@@ -99,6 +101,12 @@ public class UserAccounts
         {
             Name = newName;
         }
+
+        /// <inheritdoc />
+        public int CompareTo(User? other)
+        {
+            return String.Compare(ID, other.ID, StringComparison.Ordinal);
+        }
     }
 
     /// <summary>
@@ -121,6 +129,14 @@ public class UserAccounts
         {
             AccountType = AccountType.STUDENT;
         }
+
+        public Student(string userId, DatabaseHandler databaseHandler) : base(userId,databaseHandler)
+        {
+            this.AccountType = AccountType.STUDENT;
+            assignedSupervisor = databaseHandler.QuerySingleField(DatabaseHandler.Database.AssignedUsers,
+                UserA.ToString(), UserB.ToString(), this.ID);
+            
+        }
     }
 
     public class PersonalSupervisor : User
@@ -128,14 +144,19 @@ public class UserAccounts
         public List<string> assignedStudentIds;
 
         
-        public PersonalSupervisor(string _id, string _name, string _hashedPass) : base(_id, _name, _hashedPass)
+        public PersonalSupervisor(string userId, string name, string hashedPass) : base(userId, name, hashedPass)
         {
-            
             AccountType = AccountType.PERSONAL_SUPERVISOR;
         }
 
-        public PersonalSupervisor(string UserID, DatabaseHandler databaseHandler) : base(UserID, databaseHandler)
+        public PersonalSupervisor(string userId, DatabaseHandler databaseHandler) : base(userId, databaseHandler)
         {
+            AccountType = AccountType.PERSONAL_SUPERVISOR;
+            List<String> myAssignedStudents = databaseHandler.QueryMultiple(AssignedUsers,
+                UserB.ToString(),
+                UserA.ToString(), this.ID);
+            myAssignedStudents.Sort();
+            assignedStudentIds = myAssignedStudents;
             
         }
         

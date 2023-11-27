@@ -8,9 +8,15 @@ namespace CWRK_DDD.Database;
 /// </summary>
 public class DatabaseHandler
 {
-    
+    /// <summary>
+    /// Connection to the SQLite database.
+    /// </summary>
     private SQLiteConnection _connection;
 
+    /// <summary>
+    /// Create a new Database Handler.
+    /// </summary>
+    /// <param name="connectionString">SQLite connection string.</param>
     public DatabaseHandler(string connectionString)
     {
         _connection = new SQLiteConnection(connectionString);
@@ -25,6 +31,9 @@ public class DatabaseHandler
         _connection.Close();
     }
 
+    /// <summary>
+    /// Enums for the difference databases.
+    /// </summary>
     public enum Database
     {
         Users,
@@ -33,13 +42,19 @@ public class DatabaseHandler
         AssignedUsers
     }
     
-
+    /// <summary>
+    /// Status of a Query that doesn't return.
+    /// </summary>
     public enum QueryStatus
     {
         Failed,
         Success
     }
+    
 
+    /// <summary>
+    /// Fields in the User table
+    /// </summary>
     public enum UserDatabaseFields
     {
         UserID,
@@ -48,6 +63,9 @@ public class DatabaseHandler
         AccountType
     }
 
+    /// <summary>
+    /// Fields in the Meetings table
+    /// </summary>
     public enum MeetingDatabaseFields
     {
         MeetingID,
@@ -56,6 +74,9 @@ public class DatabaseHandler
         Date
     }
 
+    /// <summary>
+    /// Fields in the Reports table
+    /// </summary>
     public enum ReportDatabaseFields
     {
         ReportID,
@@ -64,6 +85,9 @@ public class DatabaseHandler
         DateOfReport
     }
 
+    /// <summary>
+    /// Fields in the User Assignment table
+    /// </summary>
     public enum AssignmentDatabaseFields
     {
         AssignmentID,
@@ -72,6 +96,12 @@ public class DatabaseHandler
         Type
     }
 
+    /// <summary>
+    /// Query the User table for a single result using the UserID as a primary key.
+    /// </summary>
+    /// <param name="PrimaryKey">User's ID</param>
+    /// <param name="Field">Field to return value from</param>
+    /// <returns>Value of field.</returns>
     public string QuerySingleUserField(string PrimaryKey, UserDatabaseFields Field) =>
         QuerySingleField(Database.Users,UserDatabaseFields.UserID.ToString(), PrimaryKey, Field.ToString());
     public string QuerySingleMeetingField(string PrimaryKey, MeetingDatabaseFields Field) =>
@@ -86,7 +116,7 @@ public class DatabaseHandler
     /// <param name="PrimaryKeyField">Name of primary key field.</param>
     /// <param name="PrimaryKey">Value of primary key to search by</param>
     /// <param name="Field">Field to return value of.</param>
-    /// <returns>Value of field for that primar key.</returns>
+    /// <returns>Value of field for that primary key.</returns>
     public string QuerySingleField(Database databaseWanted, string PrimaryKeyField, string PrimaryKey, string Field)
     {
         var command = _connection.CreateCommand(); 
@@ -126,10 +156,6 @@ public class DatabaseHandler
 
         return results;
     }
-
-    public List<string> QueryMultipleMeetings(Database database, MeetingDatabaseFields wantedField,
-        MeetingDatabaseFields keyField, string key) =>
-        QueryMultiple(Database.Meetings, wantedField.ToString(), keyField.ToString(), key);
     
     public bool QueryForExistance(Database databaseWanted,string primaryKeyField, string primaryKey)
     {
@@ -157,15 +183,50 @@ public class DatabaseHandler
         return AddNewUser(user.ID, user.Name, user._hashedPassword, user.AccountType);
     }
 
-    public QueryStatus AddNewUser(string userid, string name, string password, UserAccounts.AccountType accountType)
+    public QueryStatus RemoveUser(string userId)
     {
-        //TODO: Add a new user record into table via Insert into.
-        return QueryStatus.Failed;
+        var command = _connection.CreateCommand();
+        command.CommandText = $@"DELETE FROM Users WHERE UserID = '{userId}';";
+        try
+        {
+            command.ExecuteNonQuery();
+            return QueryStatus.Success;
+        }
+        catch
+        {
+            return QueryStatus.Failed;
+        }
     }
 
+    public QueryStatus AddNewUser(string userid, string name, string password, UserAccounts.AccountType accountType)
+    {
+        var command = _connection.CreateCommand();
+        
+        command.CommandText = $@"INSERT INTO Users VALUES ('{userid}','{name}','{password}','{(int)accountType}')";
+        try
+        {
+            command.ExecuteNonQuery();
+            return QueryStatus.Success;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return QueryStatus.Failed;
+        }
+    }
+    
     public QueryStatus EditDatabase(Database database, string PrimaryKeyField,string PrimaryKey, string Field, string NewValue)
     {
-        //todo: Edit Database
-        return QueryStatus.Failed;
+        var command = _connection.CreateCommand();
+        command.CommandText = $@"UPDATE {database.ToString()} SET {Field} = '{NewValue}' WHERE {PrimaryKeyField} = '{PrimaryKey}'";
+        try
+        {
+            command.ExecuteNonQuery();
+            return QueryStatus.Success;
+        }
+        catch
+        {
+            return QueryStatus.Failed;
+        }
     }
 }
